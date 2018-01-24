@@ -1,0 +1,607 @@
+%!TEX root=../document.tex
+
+\section{Ergebnisse}
+\label{sec:Ergebnisse}
+
+\subsection{Django-REST-Framework Tutorial}
+Ich habe mit zur Bearbeitung dieser Übung die Django-REST-Schnittstelle ausgesucht.
+
+\subsubsection{1: Projetk Setup}
+Zuerst muss ein neues Django Projekt erstellt und die Quickstart app aufgerufen werden.
+Das Tutorial gibt hierbei vor, wie man über die Commandline ein Projekt erstellt und weitere Schritte. Diese haben jedoch nicht funktioniert, da das Command zum Erstellen eines neuen Projekts : \textbf{django-admin.py startproject tutorial .} keine Auswirkung hatte.
+
+Lösung: Also wurde händisch über PyCharm ein neues Django Projekt angelegt und die Ordnerstruktur später manuell erweitert.
+
+\subsubsection{Sync Database und Superuser}
+
+Anschließend wird die Database über das Command \textbf{python manage.py migrate} zum ersten mal Angeglichen und ein neuer Superuser wird mit \textbf{python manage.py migrate} angelegt.
+
+Dieser hat den Username \textbf{admin} und das Passwort \textbf{password123}.
+
+  
+  
+\subsection{Registration and Login with Spring Boot, Spring Security, Spring Data JPA, and HSQL}
+
+Aufgrund des zu großen Aufwandes bei der vorigen Version mit dem Django-REST Framework, wurde die Aufgabe nun mit Spring , JSP und HQSL gelöst. Dazu wurde folgendes Tutorial verwendet: 'https://hellokoding.com/registration-and-login-example-with-spring-security-spring-boot-spring-data-jpa-hsql-jsp/'
+
+
+\subsubsection{Neues Projekt}
+Zuerst wurde einfach das Projekt aus dem Git-Repository geclont.
+ 
+\subsubsection{Dependencies}
+im xml file muss zuerst als \textbf{parent} das 'spring-boot-starter-parent' artifact gesetzt werden.
+\\Als \textbf{dependencies} wurden: 'starter-web', 'starter-data-jpa', 'starter-security', 'hsqldb', 'starter-tomcat', 'tomcat-embed-jasper', 'jstl' benutzt. als \textbf{plugIn} wird 'maven-plugin' eingebaut.
+Beispiel einer dependency Syntax:
+\begin{lstlisting}
+	<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-web</artifactId>
+	</dependency>
+\end{lstlisting}
+
+\subsubsection{User}
+Diese Klasse erstellt eine 'User'-Tabelle mit getter und setter Methoden verbindet sie über \textbf{@Table} mit der Entität ohne Entität würde default Klassenname genommen werden. Attribute: 'id', 'username', 'password', passwordConfirm', 'role'. Es wird per Entitäten die 'id' als Primary Key gesetzt (\textbf{@Id}) und bei jedem User eine automatisch noch nicht benutzte Id erstellt (\textbf{@GeneratedValue}). Ausserdem wird ein Set mit den usern und ihren Rollen erstellt.
+
+Code Snippets:
+Tabelle:
+\begin{lstlisting}
+	@Entity
+	@Table(name = "user")
+	public class User {
+		private Long id;
+		private String username;
+		private String password;
+		private String passwordConfirm;
+		private Set<Role> roles;
+	}
+\end{lstlisting}
+Automatisch generierter Primary Key:
+\begin{lstlisting}	
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	public Long getId() {
+		return id;
+	}
+\end{lstlisting}
+Set mit usern und Rollen als Tabelle:
+\begin{lstlisting}	
+	@ManyToMany
+	@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	public Set<Role> getRoles() {
+		return roles;
+	}
+\end{lstlisting}
+
+\subsubsection{Role}
+Hier wird eine Tabelle 'Rolle' mit den Attributen: 'is', 'name', 'users' und zugehörigen getter und setter Methoden erstellt.
+Auch hier wird 'id' als Primary Key gesetzt und automatisch generiert. 
+\\Die \textbf{@ManyToMany} Entität erstellt eine M zu N Relation.
+\\ \textbf{@JoinColumn} verbindet 2 Tabellen über foreign-key.
+
+
+\subsubsection{Testing}
+Zuletzt wurde noch versucht über Junit zu testen. Es wurde eine Testklasse \textbf{LibraryTest.java} erstellt. Beim Ausführen komm jedoch folgende Fehlermeldung bezüglich Junit zur Vorschein:
+
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=0.8\linewidth]{images/junitError.PNG}
+	\end{center}
+\end{figure}
+
+Lösungsansatz: das \textbf{pom.xml} mit einem junit dependency erweitern.
+Also wurde der Code Snippet von Mavenrepository für junit in das xml eingefügt.
+
+Snippet:
+\begin{lstlisting}
+	<!-- https://mvnrepository.com/artifact/org.junit/com.springsource.junit -->
+	<dependency>
+		<groupId>org.junit</groupId>
+		<artifactId>com.springsource.junit</artifactId>
+		<version>3.8.2</version>
+	</dependency>
+\end{lstlisting}
+
+Leider ist auch dieser Ansatz keine Lösung, daher wurde die 'LibraryTest'-Klasse auskommentiert damit der Error nicht mehr auftritt.
+Es kann jedoch so auch nicht getestet werden.
+
+\clearpage
+\subsection{NodeJS}
+Nächster Versuch: Webapplikation per NodeJS
+
+Die Projektstruktur wurde von folgendem Git-Repo geclont:
+\textbf{\hyperlink{https://github.com/scotch-io/easy-node-authentication/tree/local}{Easy-Node-JS-authentication}}
+
+\subsubsection{Passport}
+Das \textbf{Passport} Package von Node.js kann in Webapplikationen eingebaut werden, um eine einfache Authentifizierungsmöglichkeit in diesen per \textbf{username} und \textbf{passwort} zu implementieren. Daher wird dieses auch hier verwendet.
+
+\subsubsection{Projektstruktur}
+
+\begin{itemize}
+	\item \textbf{app}
+	\begin{itemize}
+		\item \textbf{models}
+		\begin{itemize}
+			\item \textbf{user.js:} User-Model
+		\end{itemize}
+		\item \textbf{routes.js:} routes der Applikation
+	\end{itemize}
+	\item \textbf{config}
+	\begin{itemize}
+		\item \textbf{auth.js:} Hier werden die secret-keys abgespeichert
+		\item \textbf{database.js:} Verbindungs-Settings der Datenbank
+		\item \textbf{passport.js:} Kofiguriert die ''passport'' Strategien
+	\end{itemize}
+	\item \textbf{views:}
+	\begin{itemize}
+		\item \textbf{index.ejs:} Anzeige der Homepage
+		\item \textbf{login.ejs:} Anzeige der Login-page
+		\item \textbf{signup.ejs:} Anzeige der Register-page
+		\item \textbf{profile.ejs:} Anzeige des userprofils
+	\end{itemize}
+	\item \textbf{package.json:} Beinhalett npm packages
+	\item \textbf{server.js:} Setup der Applikation
+\end{itemize} 
+
+\clearpage
+
+\subsubsection{Installation der Packages}
+Zuerst werden alle benötigten Packages installiert. \\
+Folgende Packages sind für uns wichtig:
+\begin{lstlisting}
+	"dependencies": {
+		"express": "~4.14.0",
+		"ejs": "~2.5.2",
+		"mongoose": "~4.13.1",
+		"passport": "~0.3.2",
+		"passport-local": "~1.0.0",
+		"connect-flash": "~0.1.1",
+		"bcrypt-nodejs": "latest",
+		"morgan": "~1.7.0",
+		"body-parser": "~1.15.2",
+		"cookie-parser": "~1.4.3",
+		"method-override": "~2.3.6",
+		"express-session": "~1.14.1"
+	}
+\end{lstlisting}
+
+\begin{figure}[!h] 
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/npminstall.PNG}
+	\caption{Installation der Packages}
+	\label{fig:Installation der Packages}
+\end{figure}
+
+\subsubsection{Erläuterung der Packages}
+\begin{itemize}
+	\item \textbf{Express:} Das verwendete Framework
+	\item \textbf{Ejs:} JavaScript template engines (in Node.js sind das View-templates)
+	\item \textbf{Mongoose:} Object modeling für die MongoDB
+	\item \textbf{Passport:} Framework zur Authetifizierung der User
+	\item \textbf{Connect-flash:} Erlaubt das Anzeigen von Flash-messages (Error messages usw.)
+	\item \textbf{Bcrypt-nodejs:} Um Passwörter zu hashen. (Vorteil gegenüber Bcryp: einfacher in Windows anzuwenden)
+\end{itemize}
+\clearpage
+\subsubsection{Application Setup}
+Das Ziel des \textbf{server.js}-files ist das bootstrappen der gesamten Applikation. 
+Der Code wird vom Tutorial vorgegeben:\\\\
+
+\textbf{Setup:}
+
+\leftskip=20pt
+Pfade zu Files/Packages setzen, welche später gebraucht werden:\\
+
+\begin{lstlisting}
+var express  = require('express');
+var app      = express();
+var port     = process.env.PORT || 8080; //setzt Port auf 8080
+var mongoose = require('mongoose');
+var passport = require('passport');
+var flash    = require('connect-flash');
+
+var morgan       = require('morgan');
+var cookieParser = require('cookie-parser');
+var bodyParser   = require('body-parser');
+var session      = require('express-session');
+
+var configDB = require('./config/database.js');
+\end{lstlisting}
+
+\textbf{require():} required File/Package im Parameter (sucht im routes.js file nach 
+ihnen)\\\\
+
+\leftskip=0pt
+\textbf{Konfiguration:}
+
+\leftskip=20pt
+Verbindung mit der Datenbank herstellen:
+\begin{lstlisting}
+mongoose.connect(configDB.url);
+\end{lstlisting}
+
+\leftskip=0pt
+\textbf{Setup Express Applikation:}
+
+\leftskip=20pt
+\begin{lstlisting}
+app.use(morgan('dev')); // log an die Konsole
+app.use(cookieParser()); // liest cookies fuer Authentifizierung
+app.use(bodyParser()); 	// liest auf HTML forms aus
+
+app.set('view engine', 'ejs'); // set up ejs
+
+// required wegen passport
+app.use(session({ secret: 'ilovescotchscotchyscotchscotch' }));
+app.use(passport.initialize());
+app.use(passport.session()); 
+app.use(flash()); // benutzt flash messages
+\end{lstlisting}
+
+\leftskip=0pt
+\textbf{Routes:}
+
+\leftskip=20pt
+Lädt die Routen aus routes.js und gibt app und passwort weiter
+\begin{lstlisting}
+require('./app/routes.js')(app, passport);
+\end{lstlisting}
+
+\leftskip=0pt
+\textbf{Launch:}
+
+\leftskip=20pt
+Ausühren mit Konsolenausgabe:
+\begin{lstlisting}
+app.listen(port);
+console.log('The magic happens on port ' + port);
+\end{lstlisting}
+
+\leftskip=0pt
+\textbf{Wichtig:}\\
+
+\leftskip = 20pt
+Der Pfad zum ''passport'' Objekt  wird per ''var passport = require('passport.js');'' gesetzt und dann an config/passport.js zur Konfiguration und anschließend zur app/routes.js übergeben. Erst dadurch wird er bei den Routen benutzt.
+
+\leftskip=0pt
+\subsection{Autorefreshing mit nodemon}
+	Der Server wird nicht jedes mal wenn ein neuer Datensatz eingefügt wird neu geladen. \\
+	\textbf{Abhilfe:} Nodemon: durch den Start des Servers über Nodemon wird immer bei einem neuen Eintrag der Server refreshed und somit aktualisiert.\\
+	\textbf{instalation:} ''npm install -g nodemon''\\
+	\textbf{use:} ''nodemon server.js''
+	
+	\leftskip=0pt
+	\textbf{Hier kommt folgender Error, da noch keine MongoDB Verbindung aufgesetzt wurde.}
+	
+\begin{figure}[!h] 
+\centering
+\includegraphics[width=0.8\textwidth]{images/noMongoDB.PNG}
+\caption{Error wegen fehlender MongoDB}
+\label{fig:Error wegen fehender MongoDB}
+\end{figure}
+Folglich wird dies nachgeholt:
+
+\subsection{Aufsetzen von MongoDB}
+um eine Webbasierte MongoDB aufzusetzen wurde folgendes Tutorial verwendet:\textbf{
+\hyperlink{https://zellwk.com/blog/crud-express-mongodb/}{Tutorial-MongoDB}}
+
+Wie im Tutorial vorgegeben wird zuerst mongoDB per npm installiert. Command: ''npm install mongodb --save''.
+
+\clearpage	
+
+Anschließend wird per Mlab eine MongoDB erstellt.
+Dafür wählt man den Provider \textbf{''Amazon''} und den Typ \textbf{''Sandbox''} aus.
+\begin{figure}[!h] 
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/MlabSandbox.PNG}
+	\caption{Sandbox MongoDB}
+	\label{fig:Sandbox MongoDB}
+\end{figure}
+
+Die Region wird logischerweise auf \textbf{Eu-West} gesetzt
+\begin{figure}[!h] 
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/MlabRegion.PNG}
+	\caption{Euwest MongoDB}
+	\label{fig:Euwest MongoDB}
+\end{figure}
+
+Am Ende werden die Eingaben erneut überprüft:
+
+\begin{figure}[!h] 
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/mongodbfertig.PNG}
+	\caption{Order MongoDB}
+	\label{fig:Order MongoDB}
+\end{figure}
+
+Zuletzt wird noch ein user mit namen ''nrotter'' und Passwort ''password123'' angelegt um später Zugreifen zu können.
+
+\subsection{mit DB Verbinden}
+Nun kann von der Mlab.com Seite eine \textbf{URL} zu der MongoDB kopiert werden:
+\begin{lstlisting}
+mongodb://<dbuser>:<dbpassword>@ds115198.mlab.com:15198/nrotter-mongo
+\end{lstlisting}
+
+''dbuser'' und ''dbpasswort'' müssen jedoch noch durch die des gerade erstellten Users ersetzt werden.
+
+\begin{lstlisting}
+mongodb://nrotter:password123@ds115198.mlab.com:15198/nrotter-mongo
+\end{lstlisting}
+
+Diese URL wird dann im \textbf{database.js}-File eingetragen
+
+\begin{lstlisting}
+// config/database.js
+module.exports = {
+	
+	'url' : 'mongodb://nrotter:password123@ds115198.mlab.com:15198/nrotter-mongo' 
+
+};
+\end{lstlisting}
+
+\subsection{Routes}
+Folgende Routen werden implementiert:
+\begin{itemize}
+	\item Homepage (/)
+	\item Login (/login)
+	\item Registrierung (/signup)
+	\item Profil (nach erfolgreichem Login) = Willkommensnachricht
+\end{itemize}
+
+Für diese ist das \textbf{routes.js}-File zuständig. Dieses ruft je nach gebraucht die \textbf{ejs-Files} im View-Unterordner auf. Die Methoden dafür sehen folgendermaßen aus:
+
+\textbf{Homepage:}\\
+
+\leftskip=20pt
+Zeigt die Homepage, also das index.ejs File
+\begin{lstlisting}
+app.get('/', function(req, res) {
+	res.render('index.ejs'); 
+});
+\end{lstlisting}
+
+\leftskip=0pt
+\textbf{Loginpage:}\\
+
+\leftskip=20pt
+Zeigt die Login-Seite an und jegliche flash-Meldungen wenn vorhanden.
+\begin{lstlisting}
+app.get('/login', function(req, res) {
+	
+	res.render('login.ejs', { message: req.flash('loginMessage') }); 
+});
+\end{lstlisting}
+
+\leftskip=0pt
+\textbf{Registerpage:}\\
+
+\leftskip=20pt
+Zeigt die Registrierungs-Seite an und jegliche flash-Meldungen wenn vorhanden.
+\begin{lstlisting}
+app.get('/signup', function(req, res) {
+
+	res.render('signup.ejs', { message: req.flash('signupMessage') });
+});
+\end{lstlisting}
+
+\leftskip=0pt
+\textbf{Profilpage:}\\
+
+\leftskip=20pt
+Zeigt die Profil-Seite an, diese ist nur einsehbar, falls man eingeloggt ist um Zugriff von unerwünschten Usern zu verhindern (Überprüfung mit isLoggedIn).
+
+\begin{lstlisting}
+app.get('/profile', isLoggedIn, function(req, res) {
+	res.render('profile.ejs', {
+		user : req.user 
+	});
+});
+\end{lstlisting}
+
+\leftskip=0pt
+\textbf{Logoutpage:}\\
+
+\leftskip=20pt
+Ruft req.logout() auf und redirected(verweist) auf die Homepage.
+\begin{lstlisting}
+app.get('/logout', function(req, res) {
+	req.logout();
+	res.redirect('/');
+});
+\end{lstlisting}
+
+\leftskip=0pt
+\textbf{isLoggedIn Funktion:}
+
+\leftskip=20pt
+Wenn der User eingeloggt ist wird weitergeleitet auf Profilpage, falls nicht auf die Homepage.
+\begin{lstlisting}
+function isLoggedIn(req, res, next) {
+
+if (req.isAuthenticated())
+return next();
+
+res.redirect('/');
+}
+\end{lstlisting}
+
+\leftskip=0pt
+
+\subsection{Views}
+Nun werden die Views für die Einzelnen Routen erstellt (Homepage, Loginpage, Registerpage).
+
+Die 3 wurden lediglich aus dem Tutorial kopiert.
+
+\clearpage
+
+\subsection{User Model}
+Das Usermodel ist für das Verbinden eines \textbf{Benutzeraccounts} und dessen Email, Passwort und Profil zuständig.
+
+Der Code aus dem Tutorial wurde gekürzt, da Facebook und co. uninteressant für uns sind.
+
+Neuer Code:
+\begin{lstlisting}
+// app/models/user.js
+
+var mongoose = require('mongoose');
+var bcrypt   = require('bcrypt-nodejs');
+
+var userSchema = mongoose.Schema({
+
+local            : {
+email        : String,
+password     : String,
+},
+
+});
+
+//Methoden
+
+//Hash erstellen
+userSchema.methods.generateHash = function(password) {
+	return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+};
+
+//Passwort validieren
+userSchema.methods.validPassword = function(password) {
+	return bcrypt.compareSync(password, this.local.password);
+};
+
+//Model erstellen und an App weitergeben
+module.exports = mongoose.model('User', userSchema);
+
+\end{lstlisting}
+
+!!! Das Hashen des Passworts passiert im Usermodel, bevor dieser auf die Datenbank gespeichert wird !!!
+
+\subsection{Passport Config}
+
+Der Passport wird derzeit in \textbf{server.js} erstellt und an \textbf{config/passport.js} übergeben. In diesem File werden auch \textbf{serializedUser} und \textbf{deserializedUser} Funktionen implementiert um den User in der Session zu speichern.
+
+\subsection{Handling von Login/Registrierung}
+
+Das Handling der Logins und Registrierungen wird im \textbf{passport.js}-File abgewickelt. 
+
+\clearpage
+
+\subsubsection{require}
+
+Man braucht 2 requires:\\\\
+\textbf{Das Usermodel:}
+\begin{lstlisting}
+var User = require('../app/models/user');
+\end{lstlisting}
+\textbf{Die Strategy:}
+\begin{lstlisting}
+var LocalStrategy = require('passport-local').Strategy;
+\end{lstlisting}
+
+\subsubsection{serialize/deseralize des Users}
+Passport muss die Möglichkeit haben User zu serializen und zu deserializen, daher:\\\\
+\textbf{Funktion zum serializen des Users:}
+\begin{lstlisting}
+passport.serializeUser(function(user, done) {
+	done(null, user.id);
+});
+\end{lstlisting}
+
+\textbf{Funktion zum deserializen des Users:}
+\begin{lstlisting}
+passport.deserializeUser(function(id, done) {
+	User.findById(id, function(err, user) {
+		done(err, user);
+	});
+});
+\end{lstlisting}
+
+\subsubsection{Strategy und zugehörige Funktion für Login und Register}
+Hier wird die Logik hinter dem lokalen Login und der lokalen Registrierung gehandelt.
+Beides besteht aus einer neu angelegten Strategy und einer zugehörigen Funktion.\\\\
+\textbf{Login:}\\
+
+\leftskip=20pt
+Wenn kein User gefunden wurde oder ein falsches Passwort eingegeben wurde, wird eine entsprechende Message zurückgegeben.
+
+Ansonsten wird der User returned und eingeloggt.
+
+\leftskip=0pt
+\textbf{Register:}
+
+\leftskip=20pt
+Zuerst Überprüfung ob der User noch nicht eingeloggt ist.
+Danach abfrage, ob die Userdaten (name, email) schon von einem anderen User verwendet werden, wenn nicht wird der User erstellt.\\
+
+Wenn der User eingeloggt ist wird die Registrierung ignoriert.\\\\
+
+\leftskip=0pt
+Code dafür wurde aus dem Tutorial übernommen.
+
+\subsection{Routen anpassen}
+Bei erfolgreicher Registrierung muss nun noch die Weiterleitung in \textbf{routes.js}-File hinzugefügt werden. 
+
+Hier wird noch zwischen \textbf{successRedirect} und \textbf{failureREdirect} Unterschieden. Je nach Ergebnis wird der User bei Success zur profilepage und bei Failure zu Homepage weitergeleitet.
+
+\begin{lstlisting}
+app.post('/signup', passport.authenticate('local-signup', {
+	successRedirect : '/profile', 
+	failureRedirect : '/signup', 
+	failureFlash : true 
+}));
+\end{lstlisting}
+
+\subsection{Serverstart}
+Wenn man nun erneut versucht den Server er \textbf{''nodemon server.js''} Command zu starten kommt folgender Konsolenoutput:
+
+\begin{figure}[!h] 
+	\centering
+	\includegraphics[width=0.95\textwidth]{images/serverstart.PNG}
+	\caption{Nodemon Serverstart}
+	\label{fig:Nodemon Serverstart}
+\end{figure}
+
+\clearpage
+
+Nun kann man unter \textbf{''localhost:8080''} den Server aufrufen und sieht folgenden Schirm:
+
+\begin{figure}[!h] 
+	\centering
+	\includegraphics[width=0.95\textwidth]{images/localhost8080.PNG}
+	\caption{Node Authentifizierung}
+	\label{fig:Node Authentifizierung}
+\end{figure}
+
+\subsection{Register}
+Nun kann man über \textbf{localhost:8080/signup} einen neuen User hinzufügen. Dieser wird dann auch gleich eingeloggt. und auf sein Profil \textbf{localhost:8080/profile} weitergeleitet.
+
+\begin{figure}[!h] 
+	\centering
+	\includegraphics[width=0.95\textwidth]{images/prfile.PNG}
+	\caption{userProfil}
+	\label{fig:userProfil}
+\end{figure}
+
+\clearpage
+
+\subsection{Persistenz}
+
+Dieser wurde nun auch automatisch in die MongoDb übertragen.
+\begin{figure}[!h] 
+	\centering
+	\includegraphics[width=0.60\textwidth]{images/userMongo.PNG}
+	\caption{userMongo}
+	\label{fig:userMongo}
+\end{figure}
+
+\textbf{Serverneustart:}
+Wenn man also nun den Server neu startet und die temporären User gelöscht werden, werden alle in der MongoDB gespeicherten User immer noch vom Server erkannt und man kann sich trotz des Neustarts mit ihnen einloggen. \\
+
+\textbf{Beweis für Persistenz:}
+um die Persistenz zu beweisen muss man nur nach einem Serverneustart auf den Kosolenlog achten (falls dieser korrekt implementiert wurde!).
+
+\begin{figure}[!h] 
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/beweisPersistenz.PNG}
+	\caption{Beweis Persistenz}
+	\label{fig:Beweis Persistenz}
+\end{figure}
+
+\textbf{Wie man sieht konnte sich der User einloggen und auf sein Profil zugreifen, ohne vorher ein signUp durchzuführen.}
